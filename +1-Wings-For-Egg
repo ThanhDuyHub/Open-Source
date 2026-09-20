@@ -1,0 +1,585 @@
+-- Game: https://www.roblox.com/games/80242821185181/1-Wings-For-Eggs
+
+local Players = game:GetService("Players")
+local CoreGui = game:GetService("CoreGui")
+local TweenService = game:GetService("TweenService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Workspace = workspace
+
+local LocalPlayer = Players.LocalPlayer
+
+if CoreGui:FindFirstChild("ThanhDuyHubScript") then
+    CoreGui.ThanhDuyHubScript:Destroy()
+end
+
+if CoreGui:FindFirstChild("Notifications") then
+    CoreGui.Notifications:Destroy()
+end
+
+local OwnerPlot
+for _, descendant in pairs(Workspace.Plots:GetDescendants()) do
+    if descendant.Name == "owner" and descendant.Value == LocalPlayer.Name then
+        OwnerPlot = descendant.Parent
+        break
+    end
+end
+
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "ThanhDuyHubScript"
+ScreenGui.ResetOnSpawn = false
+ScreenGui.IgnoreGuiInset = true
+ScreenGui.Parent = CoreGui
+
+local MainFrame = Instance.new("Frame")
+MainFrame.Name = "MainFrame"
+MainFrame.Size = UDim2.new(0, 480, 0, 360)
+MainFrame.Position = UDim2.new(0.5, -240, 0.5, -180)
+MainFrame.BackgroundColor3 = Color3.fromRGB(12, 12, 12)
+MainFrame.BorderSizePixel = 0
+MainFrame.Active = true
+MainFrame.Draggable = true
+MainFrame.ClipsDescendants = false
+MainFrame.Parent = ScreenGui
+
+local MainCorner = Instance.new("UICorner")
+MainCorner.CornerRadius = UDim.new(0, 12)
+MainCorner.Parent = MainFrame
+
+local MainStroke = Instance.new("UIStroke")
+MainStroke.Color = Color3.fromRGB(35, 35, 35)
+MainStroke.Thickness = 1.5
+MainStroke.Parent = MainFrame
+
+local TopBar = Instance.new("Frame")
+TopBar.Size = UDim2.new(1, 0, 0, 42)
+TopBar.BackgroundColor3 = Color3.fromRGB(18, 18, 18)
+TopBar.BorderSizePixel = 0
+TopBar.Parent = MainFrame
+
+local TopBarCorner = Instance.new("UICorner")
+TopBarCorner.CornerRadius = UDim.new(0, 12)
+TopBarCorner.Parent = TopBar
+
+local TitleLabel = Instance.new("TextLabel")
+TitleLabel.Size = UDim2.new(1, -20, 1, 0)
+TitleLabel.Position = UDim2.new(0, 15, 0, 0)
+TitleLabel.BackgroundTransparency = 1
+TitleLabel.Font = Enum.Font.GothamBold
+TitleLabel.Text = "+1 Wings For Eggs - ThanhDuyHub Open Source Script"
+TitleLabel.TextColor3 = Color3.fromRGB(245, 245, 245)
+TitleLabel.TextSize = 13
+TitleLabel.TextXAlignment = Enum.TextXAlignment.Left
+TitleLabel.Parent = TopBar
+
+local Container = Instance.new("ScrollingFrame")
+Container.Size = UDim2.new(1, -20, 1, -54)
+Container.Position = UDim2.new(0, 10, 0, 48)
+Container.BackgroundTransparency = 1
+Container.BorderSizePixel = 0
+Container.CanvasSize = UDim2.new(0, 0, 0, 0)
+Container.ScrollBarThickness = 4
+Container.ScrollBarImageColor3 = Color3.fromRGB(50, 50, 50)
+Container.Parent = MainFrame
+
+local UIListLayout = Instance.new("UIListLayout")
+UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+UIListLayout.Padding = UDim.new(0, 8)
+UIListLayout.Parent = Container
+
+UIListLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+    Container.CanvasSize = UDim2.new(0, 0, 0, UIListLayout.AbsoluteContentSize.Y + 10)
+end)
+
+local ZoneDropdownFrame = Instance.new("Frame")
+ZoneDropdownFrame.Name = "ZoneDropdownFrame"
+ZoneDropdownFrame.Size = UDim2.new(0, 180, 0, 220)
+ZoneDropdownFrame.Position = UDim2.new(1, 10, 0, 0)
+ZoneDropdownFrame.BackgroundColor3 = Color3.fromRGB(14, 14, 14)
+ZoneDropdownFrame.BorderSizePixel = 0
+ZoneDropdownFrame.Visible = false
+ZoneDropdownFrame.Parent = MainFrame
+
+local ZoneDropCorner = Instance.new("UICorner")
+ZoneDropCorner.CornerRadius = UDim.new(0, 10)
+ZoneDropCorner.Parent = ZoneDropdownFrame
+
+local ZoneDropStroke = Instance.new("UIStroke")
+ZoneDropStroke.Color = Color3.fromRGB(40, 40, 40)
+ZoneDropStroke.Thickness = 1.5
+ZoneDropStroke.Parent = ZoneDropdownFrame
+
+local ZoneDropScroll = Instance.new("ScrollingFrame")
+ZoneDropScroll.Size = UDim2.new(1, -10, 1, -10)
+ZoneDropScroll.Position = UDim2.new(0, 5, 0, 5)
+ZoneDropScroll.BackgroundTransparency = 1
+ZoneDropScroll.BorderSizePixel = 0
+ZoneDropScroll.CanvasSize = UDim2.new(0, 0, 0, 0)
+ZoneDropScroll.ScrollBarThickness = 3
+ZoneDropScroll.ScrollBarImageColor3 = Color3.fromRGB(60, 60, 60)
+ZoneDropScroll.Parent = ZoneDropdownFrame
+
+local ZoneDropList = Instance.new("UIListLayout")
+ZoneDropList.SortOrder = Enum.SortOrder.LayoutOrder
+ZoneDropList.Padding = UDim.new(0, 5)
+ZoneDropList.Parent = ZoneDropScroll
+
+ZoneDropList:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+    ZoneDropScroll.CanvasSize = UDim2.new(0, 0, 0, ZoneDropList.AbsoluteContentSize.Y + 5)
+end)
+
+local function CreateSection(nameText)
+    local SectionLabel = Instance.new("TextLabel")
+    SectionLabel.Size = UDim2.new(1, 0, 0, 24)
+    SectionLabel.BackgroundTransparency = 1
+    SectionLabel.Font = Enum.Font.GothamBold
+    SectionLabel.Text = nameText
+    SectionLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
+    SectionLabel.TextSize = 13
+    SectionLabel.TextXAlignment = Enum.TextXAlignment.Left
+    SectionLabel.Parent = Container
+end
+
+local function CreateToggle(textStr, callback)
+    local ToggleFrame = Instance.new("Frame")
+    ToggleFrame.Size = UDim2.new(1, 0, 0, 38)
+    ToggleFrame.BackgroundColor3 = Color3.fromRGB(18, 18, 18)
+    ToggleFrame.BorderSizePixel = 0
+    ToggleFrame.Parent = Container
+
+    local ToggleCorner = Instance.new("UICorner")
+    ToggleCorner.CornerRadius = UDim.new(0, 8)
+    ToggleCorner.Parent = ToggleFrame
+
+    local ToggleStroke = Instance.new("UIStroke")
+    ToggleStroke.Color = Color3.fromRGB(30, 30, 30)
+    ToggleStroke.Thickness = 1
+    ToggleStroke.Parent = ToggleFrame
+
+    local TextLabel = Instance.new("TextLabel")
+    TextLabel.Size = UDim2.new(1, -60, 1, 0)
+    TextLabel.Position = UDim2.new(0, 12, 0, 0)
+    TextLabel.BackgroundTransparency = 1
+    TextLabel.Font = Enum.Font.GothamMedium
+    TextLabel.Text = textStr
+    TextLabel.TextColor3 = Color3.fromRGB(230, 230, 230)
+    TextLabel.TextSize = 12
+    TextLabel.TextXAlignment = Enum.TextXAlignment.Left
+    TextLabel.Parent = ToggleFrame
+
+    local SwitchBtn = Instance.new("TextButton")
+    SwitchBtn.Size = UDim2.new(0, 40, 0, 22)
+    SwitchBtn.Position = UDim2.new(1, -50, 0.5, -11)
+    SwitchBtn.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+    SwitchBtn.BorderSizePixel = 0
+    SwitchBtn.Text = ""
+    SwitchBtn.Parent = ToggleFrame
+
+    local SwitchCorner = Instance.new("UICorner")
+    SwitchCorner.CornerRadius = UDim.new(1, 0)
+    SwitchCorner.Parent = SwitchBtn
+
+    local Circle = Instance.new("Frame")
+    Circle.Size = UDim2.new(0, 16, 0, 16)
+    Circle.Position = UDim2.new(0, 3, 0.5, -8)
+    Circle.BackgroundColor3 = Color3.fromRGB(200, 200, 200)
+    Circle.BorderSizePixel = 0
+    Circle.Parent = SwitchBtn
+
+    local CircleCorner = Instance.new("UICorner")
+    CircleCorner.CornerRadius = UDim.new(1, 0)
+    CircleCorner.Parent = Circle
+
+    local activeState = false
+    SwitchBtn.MouseButton1Click:Connect(function()
+        activeState = not activeState
+        if activeState then
+            TweenService:Create(SwitchBtn, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(50, 150, 80)}):Play()
+            TweenService:Create(Circle, TweenInfo.new(0.2), {Position = UDim2.new(1, -19, 0.5, -8)}):Play()
+        else
+            TweenService:Create(SwitchBtn, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(35, 35, 35)}):Play()
+            TweenService:Create(Circle, TweenInfo.new(0.2), {Position = UDim2.new(0, 3, 0.5, -8)}):Play()
+        end
+        callback(activeState)
+    end)
+end
+
+local function CreateButton(textStr, callback)
+    local Button = Instance.new("TextButton")
+    Button.Size = UDim2.new(1, 0, 0, 38)
+    Button.BackgroundColor3 = Color3.fromRGB(18, 18, 18)
+    Button.BorderSizePixel = 0
+    Button.Font = Enum.Font.GothamMedium
+    Button.Text = textStr
+    Button.TextColor3 = Color3.fromRGB(230, 230, 230)
+    Button.TextSize = 12
+    Button.TextXAlignment = Enum.TextXAlignment.Left
+    Button.Parent = Container
+
+    local ButtonPadding = Instance.new("UIPadding")
+    ButtonPadding.PaddingLeft = UDim.new(0, 12)
+    ButtonPadding.Parent = Button
+
+    local ButtonCorner = Instance.new("UICorner")
+    ButtonCorner.CornerRadius = UDim.new(0, 8)
+    ButtonCorner.Parent = Button
+
+    local ButtonStroke = Instance.new("UIStroke")
+    ButtonStroke.Color = Color3.fromRGB(30, 30, 30)
+    ButtonStroke.Thickness = 1
+    ButtonStroke.Parent = Button
+
+    Button.MouseButton1Click:Connect(function()
+        TweenService:Create(Button, TweenInfo.new(0.08), {BackgroundColor3 = Color3.fromRGB(30, 30, 30)}):Play()
+        task.wait(0.08)
+        TweenService:Create(Button, TweenInfo.new(0.08), {BackgroundColor3 = Color3.fromRGB(18, 18, 18)}):Play()
+        callback(Button)
+    end)
+    return Button
+end
+
+local function CreateSlider(textStr, minVal, maxVal, defaultVal, callback)
+    local SliderFrame = Instance.new("Frame")
+    SliderFrame.Size = UDim2.new(1, 0, 0, 52)
+    SliderFrame.BackgroundColor3 = Color3.fromRGB(18, 18, 18)
+    SliderFrame.BorderSizePixel = 0
+    SliderFrame.Parent = Container
+
+    local SliderCorner = Instance.new("UICorner")
+    SliderCorner.CornerRadius = UDim.new(0, 8)
+    SliderCorner.Parent = SliderFrame
+
+    local SliderStroke = Instance.new("UIStroke")
+    SliderStroke.Color = Color3.fromRGB(30, 30, 30)
+    SliderStroke.Thickness = 1
+    SliderStroke.Parent = SliderFrame
+
+    local TextLabel = Instance.new("TextLabel")
+    TextLabel.Size = UDim2.new(1, -60, 0, 22)
+    TextLabel.Position = UDim2.new(0, 12, 0, 6)
+    TextLabel.BackgroundTransparency = 1
+    TextLabel.Font = Enum.Font.GothamMedium
+    TextLabel.Text = textStr
+    TextLabel.TextColor3 = Color3.fromRGB(230, 230, 230)
+    TextLabel.TextSize = 12
+    TextLabel.TextXAlignment = Enum.TextXAlignment.Left
+    TextLabel.Parent = SliderFrame
+
+    local ValueLabel = Instance.new("TextLabel")
+    ValueLabel.Size = UDim2.new(0, 40, 0, 22)
+    ValueLabel.Position = UDim2.new(1, -52, 0, 6)
+    ValueLabel.BackgroundTransparency = 1
+    ValueLabel.Font = Enum.Font.GothamBold
+    ValueLabel.Text = tostring(defaultVal)
+    ValueLabel.TextColor3 = Color3.fromRGB(180, 180, 180)
+    ValueLabel.TextSize = 12
+    ValueLabel.TextXAlignment = Enum.TextXAlignment.Right
+    ValueLabel.Parent = SliderFrame
+
+    local BarBackground = Instance.new("Frame")
+    BarBackground.Size = UDim2.new(1, -24, 0, 6)
+    BarBackground.Position = UDim2.new(0, 12, 0, 34)
+    BarBackground.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+    BarBackground.BorderSizePixel = 0
+    BarBackground.Parent = SliderFrame
+
+    local BarCorner = Instance.new("UICorner")
+    BarCorner.CornerRadius = UDim.new(1, 0)
+    BarCorner.Parent = BarBackground
+
+    local BarFill = Instance.new("Frame")
+    BarFill.Size = UDim2.new((defaultVal - minVal) / (maxVal - minVal), 0, 1, 0)
+    BarFill.BackgroundColor3 = Color3.fromRGB(80, 160, 255)
+    BarFill.BorderSizePixel = 0
+    BarFill.Parent = BarBackground
+
+    local FillCorner = Instance.new("UICorner")
+    FillCorner.CornerRadius = UDim.new(1, 0)
+    FillCorner.Parent = BarFill
+
+    local DragButton = Instance.new("TextButton")
+    DragButton.Size = UDim2.new(1, 0, 1, 10)
+    DragButton.Position = UDim2.new(0, 0, 0, -5)
+    DragButton.BackgroundTransparency = 1
+    DragButton.Text = ""
+    DragButton.Parent = BarBackground
+
+    local dragging = false
+    local function updateValue(input)
+        local pos = math.clamp((input.Position.X - BarBackground.AbsolutePosition.X) / BarBackground.AbsoluteSize.X, 0, 1)
+        local value = math.floor(minVal + ((maxVal - minVal) * pos))
+        BarFill.Size = UDim2.new(pos, 0, 1, 0)
+        ValueLabel.Text = tostring(value)
+        callback(value)
+    end
+
+    DragButton.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            dragging = true
+            updateValue(input)
+        end
+    end)
+
+    game:GetService("UserInputService").InputEnded:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            dragging = false
+        end
+    end)
+
+    game:GetService("UserInputService").InputChanged:Connect(function(input)
+        if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+            updateValue(input)
+        end
+    end)
+end
+
+CreateSection("Automation Functions")
+
+CreateToggle("Steal Best Eggs", function(state)
+    _G.Steal = state
+    print("Steal: ", state)
+    if state then
+        task.spawn(function()
+            while _G.Steal do
+                task.wait()
+                pcall(function()
+                    local BestFriend
+                    local MaxScale = -math.huge
+                    for _, friend in pairs(Workspace.Live.Friends:GetChildren()) do
+                        local SpawnScale = friend:GetAttribute("SpawnScale")
+                        if SpawnScale and MaxScale < SpawnScale then
+                            MaxScale = SpawnScale
+                            BestFriend = friend
+                        end
+                    end
+                    if BestFriend and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+                        LocalPlayer.Character.HumanoidRootPart.CFrame = BestFriend.RootPart.CFrame
+                        task.wait(0.2)
+                        fireproximityprompt(BestFriend.RootPart.StealPromptAttach.StealPrompt)
+                        task.wait(0.2)
+                        if OwnerPlot and OwnerPlot:FindFirstChild("TouristPart") then
+                            LocalPlayer.Character.HumanoidRootPart.CFrame = OwnerPlot.TouristPart.CFrame
+                        end
+                    end
+                    task.wait(0.2)
+                end)
+            end
+        end)
+    end
+end)
+
+CreateToggle("Instant Steal", function(state)
+    _G.Instant = state
+    print("Instant: ", state)
+    if state then
+        task.spawn(function()
+            while _G.Instant do
+                task.wait()
+                pcall(function()
+                    if LocalPlayer.PlayerGui:FindFirstChild("Drop") and LocalPlayer.PlayerGui.Drop.Enabled == true then
+                        if OwnerPlot and OwnerPlot:FindFirstChild("TouristPart") and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+                            LocalPlayer.Character.HumanoidRootPart.CFrame = OwnerPlot.TouristPart.CFrame
+                        end
+                    end
+                    task.wait()
+                end)
+            end
+        end)
+    end
+end)
+
+CreateToggle("Auto Place", function(state)
+    _G.Place = state
+    print("Place: ", state)
+    if state then
+        task.spawn(function()
+            while _G.Place do
+                task.wait()
+                pcall(function()
+                    local Character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+                    local ToolToPlace
+                    for _, item in pairs(Character:GetChildren()) do
+                        if item:IsA("Tool") and item:GetAttribute("friendUID") then
+                            ToolToPlace = item
+                            break
+                        end
+                    end
+                    if not ToolToPlace then
+                        for _, item in pairs(LocalPlayer.Backpack:GetChildren()) do
+                            if item:IsA("Tool") and item:GetAttribute("friendUID") then
+                                ToolToPlace = item
+                                break
+                            end
+                        end
+                    end
+                    if ToolToPlace then
+                        local Arguments = {
+                            [1] = ToolToPlace:GetAttribute("friendUID"),
+                            [2] = 0,
+                            [3] = 0
+                        }
+                        ReplicatedStorage.SharedModules.Network.Remotes:FindFirstChild("Place Friend"):FireServer(unpack(Arguments))
+                    end
+                    task.wait(0.2)
+                end)
+            end
+        end)
+    end
+end)
+
+CreateToggle("Auto Hatch", function(state)
+    _G.Hatch = state
+    print("Hatch: ", state)
+    if state then
+        task.spawn(function()
+            while _G.Hatch do
+                task.wait()
+                pcall(function()
+                    local PlayerFriendsFolder = Workspace.Live.PlayerFriends:FindFirstChild(LocalPlayer.Name)
+                    if PlayerFriendsFolder then
+                        local _pairs = pairs
+                        for _, descendant in _pairs(PlayerFriendsFolder:GetDescendants()) do
+                            if descendant.Name == "OpenEgg" and descendant.ActionText == "Open" and descendant.Enabled == true then
+                                local ParentName = descendant.Parent.Parent.Parent.Name
+                                local Remote = ReplicatedStorage.SharedModules.Network.Remotes:FindFirstChild("Open Lucky Block")
+                                if Remote then
+                                    Remote:FireServer(ParentName)
+                                end
+                            end
+                        end
+                    end
+                    task.wait(1)
+                end)
+            end
+        end)
+    end
+end)
+
+CreateToggle("Buy Speed", function(state)
+    _G.Speed = state
+    print("Speed: ", state)
+    if state then
+        task.spawn(function()
+            while _G.Speed do
+                task.wait()
+                pcall(function()
+                    ReplicatedStorage.SharedModules.Network.Remotes:FindFirstChild("Buy Upgrade"):FireServer("Speed")
+                    task.wait()
+                end)
+            end
+        end)
+    end
+end)
+
+CreateToggle("Auto Rebirth", function(state)
+    _G.Rebirth = state
+    print("Rebirth: ", state)
+    if state then
+        task.spawn(function()
+            while _G.Rebirth do
+                task.wait()
+                pcall(function()
+                    local HudButtons = LocalPlayer.PlayerGui:FindFirstChild("Hud")
+                    if HudButtons and HudButtons.Buttons.Rebirth.Notify.Visible == true then
+                        ReplicatedStorage.SharedModules.Network.Remotes.Rebirth:FireServer()
+                    end
+                    task.wait(0.2)
+                end)
+            end
+        end)
+    end
+end)
+
+CreateSection("Movement Functions")
+
+local ZoneNames = {}
+for _, sign in pairs(Workspace.Map.RecommendedStaminaSigns:GetChildren()) do
+    table.insert(ZoneNames, sign.Name)
+end
+
+local SelectedZone = ZoneNames[1] or ""
+
+local ZoneButton = CreateButton("Zone: " .. SelectedZone, function(btn)
+    ZoneDropdownFrame.Visible = not ZoneDropdownFrame.Visible
+    if ZoneDropdownFrame.Visible then
+        local absPos = btn.AbsolutePosition
+        local absSize = btn.AbsoluteSize
+        local mainPos = MainFrame.AbsolutePosition
+        ZoneDropdownFrame.Position = UDim2.new(0, absPos.X - mainPos.X + absSize.X + 8, 0, absPos.Y - mainPos.Y)
+    end
+end)
+
+for _, zoneName in ipairs(ZoneNames) do
+    local ZoneItem = Instance.new("TextButton")
+    ZoneItem.Size = UDim2.new(1, 0, 0, 32)
+    ZoneItem.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+    ZoneItem.BorderSizePixel = 0
+    ZoneItem.Font = Enum.Font.GothamMedium
+    ZoneItem.Text = zoneName
+    ZoneItem.TextColor3 = Color3.fromRGB(220, 220, 220)
+    ZoneItem.TextSize = 12
+    ZoneItem.Parent = ZoneDropScroll
+
+    local ItemCorner = Instance.new("UICorner")
+    ItemCorner.CornerRadius = UDim.new(0, 6)
+    ItemCorner.Parent = ZoneItem
+
+    ZoneItem.MouseButton1Click:Connect(function()
+        SelectedZone = zoneName
+        ZoneButton.Text = "Zone: " .. SelectedZone
+        ZoneDropdownFrame.Visible = false
+        print("Selected Zone: ", SelectedZone)
+    end)
+end
+
+CreateToggle("Teleport", function(state)
+    _G.AutoTeleport = state
+    print("Teleport: ", state)
+    if state and SelectedZone ~= "" then
+        if Workspace.Map.RecommendedStaminaSigns:FindFirstChild(SelectedZone) then
+            local TargetPart = Workspace.Map.RecommendedStaminaSigns[SelectedZone]
+            if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+                LocalPlayer.Character.HumanoidRootPart.CFrame = TargetPart:GetPivot("WorldPivot")
+            end
+        end
+    end
+end)
+
+local TweenSpeedValue = 100
+CreateSlider("Tween Speed", 16, 700, 100, function(speed)
+    TweenSpeedValue = speed
+end)
+
+CreateToggle("Tween", function(state)
+    _G.TweenTeleport = state
+    print("Tween: ", state)
+    if state and SelectedZone ~= "" then
+        task.spawn(function()
+            if Workspace.Map.RecommendedStaminaSigns:FindFirstChild(SelectedZone) then
+                local TargetPart = Workspace.Map.RecommendedStaminaSigns[SelectedZone]
+                local TargetCFrame = TargetPart:GetPivot("WorldPivot")
+                local Character = LocalPlayer.Character
+                if Character and Character:FindFirstChild("HumanoidRootPart") then
+                    local RootPart = Character.HumanoidRootPart
+                    local Distance = (RootPart.Position - TargetCFrame.Position).Magnitude
+                    local Duration = Distance / TweenSpeedValue
+                    local TweenInfoConfig = TweenInfo.new(Duration, Enum.EasingStyle.Linear)
+                    local Tween = TweenService:Create(RootPart, TweenInfoConfig, {CFrame = TargetCFrame})
+                    Tween:Play()
+                    
+                    while Tween.PlaybackState == Enum.PlaybackState.Playing and _G.TweenTeleport do
+                        task.wait()
+                    end
+                    if not _G.TweenTeleport then
+                        Tween:Cancel()
+                    end
+                end
+            end
+        end)
+    end
+end)
+
+CreateSection("Information")
+
+CreateButton("ThanhDuyHub Open Source Script", function()
+    print("ThanhDuyHub Open Source Script")
+end)
